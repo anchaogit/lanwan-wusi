@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>分数运算题目生成器</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #3498db;
+        }
+        
+        .control-panel {
+            background-color: #ecf0f1;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #bdc3c7;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+        }
+        
+        .checkbox-item input {
+            width: auto;
+            margin-right: 5px;
+        }
+        
+        .radio-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .radio-item {
+            display: flex;
+            align-items: center;
+        }
+        
+        .radio-item input {
+            width: auto;
+            margin-right: 5px;
+        }
+        
+        .btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+            margin-right: 10px;
+            margin-top: 10px;
+        }
+        
+        .btn:hover {
+            background-color: #2980b9;
+        }
+        
+        .btn-print {
+            background-color: #2ecc71;
+        }
+        
+        .btn-print:hover {
+            background-color: #27ae60;
+        }
+        
+        .btn-answer {
+            background-color: #9b59b6;
+        }
+        
+        .btn-answer:hover {
+            background-color: #8e44ad;
+        }
+        
+        .questions-container {
+            margin-top: 30px;
+            padding: 20px;
+            border: 1px solid #bdc3c7;
+            border-radius: 8px;
+            background-color: white;
+        }
+        
+        .title-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .title-section h2 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        
+        .title-section .info {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+        
+        .questions-grid {
+            display: grid;
+            gap: 30px;
+        }
+        
+        .question-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        
+        .question-item {
+            flex: 1;
+            padding: 15px;
+            border: 1px dashed #bdc3c7;
+            border-radius: 6px;
+            margin: 0 10px;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+        }
+        
+        .question-text {
+            font-size: 18px;
+            width: 100%;
+            overflow: hidden;
+        }
+        
+        .fraction {
+            display: inline-block;
+            text-align: center;
+            vertical-align: middle;
+            margin: 0 2px;
+            font-size: 16px;
+        }
+        
+        .fraction .numerator {
+            display: block;
+            padding: 0 3px;
+            border-bottom: 1px solid #000;
+            line-height: 1.2;
+        }
+        
+        .fraction .denominator {
+            display: block;
+            padding: 0 3px;
+            line-height: 1.2;
+        }
+        
+        .mixed-fraction {
+            display: inline-flex;
+            align-items: center;
+            vertical-align: middle;
+            font-size: 16px;
+        }
+        
+        .mixed-fraction .whole {
+            margin-right: 3px;
+        }
+        
+        .answer-section {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #3498db;
+        }
+        
+        .answer-section h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+        
+        .answer-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        
+        .answer-item {
+            flex: 1;
+            padding: 10px;
+            margin: 0 10px;
+            font-size: 16px;
+            overflow: hidden;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        /* 打印样式 */
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+            }
+            
+            .container {
+                box-shadow: none;
+                border-radius: 0;
+                padding: 0;
+            }
+            
+            .control-panel, .btn, h1 {
+                display: none;
+            }
+            
+            .questions-container {
+                box-shadow: none;
+                border: none;
+                padding: 0;
+                margin-top: 0;
+            }
+            
+            .title-section {
+                margin-bottom: 20px;
+            }
+            
+            .title-section h2 {
+                font-size: 20px;
+            }
+            
+            .question-item {
+                border: 1px solid #000;
+                min-height: 70px;
+            }
+            
+            .answer-section {
+                page-break-before: always;
+                margin-top: 30px;
+            }
+            
+            .question-text, .answer-item {
+                font-size: 16px;
+            }
+            
+            .fraction, .mixed-fraction {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>分数运算题目生成器</h1>
+        
+        <div class="control-panel">
+            <div class="form-group">
+                <label for="name">学生姓名</label>
+                <input type="text" id="name" placeholder="请输入学生姓名">
+            </div>
+            
+            <div class="form-group">
+                <label for="questionCount">题目数量 (20-50题)</label>
+                <input type="number" id="questionCount" min="20" max="50" value="30">
+            </div>
+            
+            <div class="form-group">
+                <label for="questionsPerRow">每行显示题数</label>
+                <select id="questionsPerRow">
+                    <option value="2">2题</option>
+                    <option value="3" selected>3题</option>
+                    <option value="4">4题</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>数值范围</label>
+                <div class="radio-group">
+                    <div class="radio-item">
+                        <input type="radio" id="positiveOnly" name="numberType" checked>
+                        <label for="positiveOnly">正数</label>
+                    </div>
+                    <div class="radio-item">
+                        <input type="radio" id="positiveNegative" name="numberType">
+                        <label for="positiveNegative">正数、负数</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>运算类型</label>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="addition" checked>
+                        <label for="addition">加法</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="subtraction" checked>
+                        <label for="subtraction">减法</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="multiplication">
+                        <label for="multiplication">乘法</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="division">
+                        <label for="division">除法</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>题目类型</label>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="radio" id="fractionOnly" name="questionType" checked>
+                        <label for="fractionOnly">纯分数运算</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="radio" id="mixed" name="questionType">
+                        <label for="mixed">分数与整数混合运算</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="radio" id="mixedFraction" name="questionType">
+                        <label for="mixedFraction">带分数运算</label>
+                    </div>
+                </div>
+            </div>
+            
+            <button class="btn" id="generateBtn">生成题目</button>
+            <button class="btn btn-print" id="printBtn">打印题目</button>
+            <button class="btn btn-answer" id="toggleAnswerBtn">显示答案</button>
+        </div>
+        
+        <div class="questions-container" id="questionsContainer">
+            <div class="title-section">
+                <h2 id="titleText">分数运算练习题</h2>
+                <div class="info" id="nameInfo">姓名：__________</div>
+            </div>
+            
+            <div class="questions-grid" id="questionsGrid">
+                <!-- 题目将在这里动态生成 -->
+            </div>
+            
+            <div class="answer-section hidden" id="answerSection">
+                <h3>参考答案</h3>
+                <div id="answersGrid">
+                    <!-- 答案将在这里动态生成 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const generateBtn = document.getElementById('generateBtn');
+            const printBtn = document.getElementById('printBtn');
+            const toggleAnswerBtn = document.getElementById('toggleAnswerBtn');
+            const questionsGrid = document.getElementById('questionsGrid');
+            const answersGrid = document.getElementById('answersGrid');
+            const answerSection = document.getElementById('answerSection');
+            const titleText = document.getElementById('titleText');
+            const nameInfo = document.getElementById('nameInfo');
+            
+            // 页面加载时立即生成题目
+            generateQuestions();
+            
+            // 生成题目
+            generateBtn.addEventListener('click', generateQuestions);
+            
+            // 打印功能
+            printBtn.addEventListener('click', function() {
+                window.print();
+            });
+            
+            // 显示/隐藏答案
+            toggleAnswerBtn.addEventListener('click', function() {
+                answerSection.classList.toggle('hidden');
+                toggleAnswerBtn.textContent = answerSection.classList.contains('hidden') ? '显示答案' : '隐藏答案';
+            });
+            
+            // 生成题目函数
+            function generateQuestions() {
+                console.log('开始生成题目...');
+                
+                // 获取用户输入
+                const name = document.getElementById('name').value || '__________';
+                const questionCount = parseInt(document.getElementById('questionCount').value);
+                const questionsPerRow = parseInt(document.getElementById('questionsPerRow').value);
+                const positiveOnly = document.getElementById('positiveOnly').checked;
+                const addition = document.getElementById('addition').checked;
+                const subtraction = document.getElementById('subtraction').checked;
+                const multiplication = document.getElementById('multiplication').checked;
+                const division = document.getElementById('division').checked;
+                const isMixed = document.getElementById('mixed').checked;
+                const isMixedFraction = document.getElementById('mixedFraction').checked;
+                
+                console.log('参数:', {name, questionCount, questionsPerRow, positiveOnly, addition, subtraction, multiplication, division, isMixed, isMixedFraction});
+                
+                // 更新标题信息
+                nameInfo.textContent = `姓名：${name}`;
+                
+                // 生成题目类型标题
+                let title = '分数';
+                if (isMixed) title += '与整数混合';
+                if (isMixedFraction) title = '带分数';
+                
+                const operations = [];
+                if (addition) operations.push('加法');
+                if (subtraction) operations.push('减法');
+                if (multiplication) operations.push('乘法');
+                if (division) operations.push('除法');
+                
+                if (operations.length === 0) {
+                    alert('请至少选择一种运算类型！');
+                    return;
+                }
+                
+                if (operations.length === 1) {
+                    title += operations[0] + '运算';
+                } else {
+                    title += '混合运算';
+                }
+                
+                titleText.textContent = title + '练习题';
+                
+                // 清空之前的内容
+                questionsGrid.innerHTML = '';
+                answersGrid.innerHTML = '';
+                
+                // 生成题目
+                const questions = [];
+                const answers = [];
+                
+                for (let i = 0; i < questionCount; i++) {
+                    const question = generateQuestion(isMixed, isMixedFraction, positiveOnly, addition, subtraction, multiplication, division);
+                    console.log(`题目 ${i+1}:`, question);
+                    questions.push(question.question);
+                    answers.push(question.answer);
+                }
+                
+                console.log('所有题目:', questions);
+                console.log('所有答案:', answers);
+                
+                // 显示题目
+                for (let i = 0; i < questionCount; i += questionsPerRow) {
+                    const row = document.createElement('div');
+                    row.className = 'question-row';
+                    
+                    for (let j = 0; j < questionsPerRow; j++) {
+                        if (i + j < questionCount) {
+                            const questionItem = document.createElement('div');
+                            questionItem.className = 'question-item';
+                            
+                            const questionText = document.createElement('div');
+                            questionText.className = 'question-text';
+                            questionText.innerHTML = `${i + j + 1}. ${questions[i + j]}`;
+                            
+                            questionItem.appendChild(questionText);
+                            row.appendChild(questionItem);
+                        }
+                    }
+                    
+                    questionsGrid.appendChild(row);
+                }
+                
+                // 显示答案
+                for (let i = 0; i < questionCount; i += questionsPerRow) {
+                    const row = document.createElement('div');
+                    row.className = 'answer-row';
+                    
+                    for (let j = 0; j < questionsPerRow; j++) {
+                        if (i + j < questionCount) {
+                            const answerItem = document.createElement('div');
+                            answerItem.className = 'answer-item';
+                            answerItem.innerHTML = `${i + j + 1}. ${answers[i + j]}`;
+                            
+                            row.appendChild(answerItem);
+                        }
+                    }
+                    
+                    answersGrid.appendChild(row);
+                }
+                
+                // 隐藏答案区域
+                answerSection.classList.add('hidden');
+                toggleAnswerBtn.textContent = '显示答案';
+                
+                console.log('题目生成完成');
+            }
+            
+            // 生成单个题目
+            function generateQuestion(isMixed, isMixedFraction, positiveOnly, addition, subtraction, multiplication, division) {
+                // 确定运算类型
+                const operations = [];
+                if (addition) operations.push('+');
+                if (subtraction) operations.push('-');
+                if (multiplication) operations.push('×');
+                if (division) operations.push('÷');
+                
+                const operation = operations[Math.floor(Math.random() * operations.length)];
+                
+                // 生成分数
+                function generateFraction() {
+                    let numerator, denominator;
+                    
+                    if (positiveOnly) {
+                        // 只生成正数
+                        numerator = Math.floor(Math.random() * 9) + 1;
+                        denominator = Math.floor(Math.random() * 9) + 2;
+                    } else {
+                        // 生成正数和负数
+                        numerator = Math.floor(Math.random() * 18) - 8; // -8 到 9
+                        denominator = Math.floor(Math.random() * 9) + 2; // 2 到 10
+                        
+                        // 确保分母不为0且不为负数
+                        denominator = Math.abs(denominator) || 2;
+                        if (numerator === 0) numerator = 1; // 避免分子为0
+                    }
+                    
+                    // 确保分数不是假分数
+                    if (Math.abs(numerator) >= denominator) {
+                        denominator = Math.abs(numerator) + Math.floor(Math.random() * 3) + 1;
+                    }
+                    
+                    // 约分
+                    const gcdValue = gcd(numerator, denominator);
+                    return {
+                        numerator: numerator / gcdValue,
+                        denominator: denominator / gcdValue
+                    };
+                }
+                
+                // 生成带分数
+                function generateMixedFraction() {
+                    let whole, fraction;
+                    
+                    if (positiveOnly) {
+                        // 只生成正数
+                        whole = Math.floor(Math.random() * 5) + 1;
+                        fraction = generateFraction();
+                    } else {
+                        // 生成正数和负数
+                        whole = Math.floor(Math.random() * 10) - 4; // -4 到 5
+                        fraction = generateFraction();
+                        
+                        // 如果整数部分为0，确保分数部分不为0
+                        if (whole === 0) {
+                            whole = Math.floor(Math.random() * 9) - 4; // 重新生成
+                            if (whole === 0) whole = 1; // 确保不为0
+                        }
+                    }
+                    
+                    // 确保分数部分是真分数
+                    if (Math.abs(fraction.numerator) >= fraction.denominator) {
+                        fraction.numerator = fraction.denominator - 1;
+                        if (fraction.numerator === 0) fraction.numerator = 1;
+                    }
+                    
+                    return {
+                        whole: whole,
+                        numerator: fraction.numerator,
+                        denominator: fraction.denominator
+                    };
+                }
+                
+                // 生成整数
+                function generateInteger() {
+                    if (positiveOnly) {
+                        return Math.floor(Math.random() * 10) + 1;
+                    } else {
+                        return Math.floor(Math.random() * 20) - 9; // -9 到 10
+                    }
+                }
+                
+                // 生成操作数
+                let operand1, operand2;
+                
+                if (isMixedFraction) {
+                    // 带分数运算
+                    operand1 = { type: 'mixedFraction', value: generateMixedFraction() };
+                    operand2 = { type: 'mixedFraction', value: generateMixedFraction() };
+                } else if (isMixed) {
+                    // 混合运算：一个整数，一个分数
+                    if (Math.random() > 0.5) {
+                        operand1 = { type: 'integer', value: generateInteger() };
+                        operand2 = { type: 'fraction', value: generateFraction() };
+                    } else {
+                        operand1 = { type: 'fraction', value: generateFraction() };
+                        operand2 = { type: 'integer', value: generateInteger() };
+                    }
+                } else {
+                    // 纯分数运算
+                    operand1 = { type: 'fraction', value: generateFraction() };
+                    operand2 = { type: 'fraction', value: generateFraction() };
+                }
+                
+                // 对于正数范围内的减法运算，确保被减数大于减数
+                if (positiveOnly && operation === '-') {
+                    // 比较两个操作数的大小
+                    const value1 = getOperandValue(operand1);
+                    const value2 = getOperandValue(operand2);
+                    
+                    if (value1 <= value2) {
+                        // 如果被减数小于等于减数，交换操作数位置
+                        [operand1, operand2] = [operand2, operand1];
+                    }
+                }
+                
+                // 生成题目和答案
+                let question = '';
+                let answer = '';
+                
+                // 格式化操作数显示
+                function formatOperand(operand) {
+                    if (operand.type === 'integer') {
+                        return formatNumber(operand.value);
+                    } else if (operand.type === 'fraction') {
+                        return createFractionHTML(operand.value.numerator, operand.value.denominator);
+                    } else if (operand.type === 'mixedFraction') {
+                        return createMixedFractionHTML(operand.value.whole, operand.value.numerator, operand.value.denominator);
+                    }
+                }
+                
+                question = `${formatOperand(operand1)} ${operation} ${formatOperand(operand2)} = `;
+                
+                // 计算答案
+                let result;
+                if (operand1.type === 'integer' && operand2.type === 'integer') {
+                    // 两个整数
+                    result = calculate(operand1.value, operand2.value, operation);
+                } else if (operand1.type === 'fraction' && operand2.type === 'fraction') {
+                    // 两个分数
+                    result = calculateFraction(
+                        operand1.value.numerator, operand1.value.denominator,
+                        operand2.value.numerator, operand2.value.denominator,
+                        operation
+                    );
+                } else if (operand1.type === 'mixedFraction' || operand2.type === 'mixedFraction') {
+                    // 带分数运算
+                    const f1 = operand1.type === 'mixedFraction' ? 
+                        convertMixedToFraction(operand1.value) : 
+                        {numerator: operand1.value, denominator: 1};
+                    
+                    const f2 = operand2.type === 'mixedFraction' ? 
+                        convertMixedToFraction(operand2.value) : 
+                        {numerator: operand2.value, denominator: 1};
+                    
+                    result = calculateFraction(
+                        f1.numerator, f1.denominator,
+                        f2.numerator, f2.denominator,
+                        operation
+                    );
+                } else {
+                    // 一个整数一个分数
+                    const intValue = operand1.type === 'integer' ? operand1.value : operand2.value;
+                    const fraction = operand1.type === 'fraction' ? operand1.value : operand2.value;
+                    
+                    result = calculateMixed(intValue, fraction.numerator, fraction.denominator, operation);
+                }
+                
+                // 如果只允许正数，但结果为负数，重新生成题目
+                if (positiveOnly && (result.numerator < 0 || result.denominator < 0)) {
+                    return generateQuestion(isMixed, isMixedFraction, positiveOnly, addition, subtraction, multiplication, division);
+                }
+                
+                answer = formatFractionHTML(result.numerator, result.denominator);
+                
+                return { question, answer };
+            }
+            
+            // 获取操作数的数值（用于比较大小）
+            function getOperandValue(operand) {
+                if (operand.type === 'integer') {
+                    return operand.value;
+                } else if (operand.type === 'fraction') {
+                    return operand.value.numerator / operand.value.denominator;
+                } else if (operand.type === 'mixedFraction') {
+                    return operand.value.whole + (operand.value.numerator / operand.value.denominator);
+                }
+                return 0;
+            }
+            
+            // 格式化数字显示（处理负数）
+            function formatNumber(num) {
+                if (num < 0) {
+                    return `(${num})`;
+                }
+                return num.toString();
+            }
+            
+            // 创建分数HTML表示
+            function createFractionHTML(numerator, denominator) {
+                if (numerator < 0 || denominator < 0) {
+                    return `(${createFractionHTML(Math.abs(numerator), Math.abs(denominator))})`;
+                }
+                return `<span class="fraction"><span class="numerator">${numerator}</span><span class="denominator">${denominator}</span></span>`;
+            }
+            
+            // 创建带分数HTML表示
+            function createMixedFractionHTML(whole, numerator, denominator) {
+                if (whole < 0 || numerator < 0 || denominator < 0) {
+                    return `(${createMixedFractionHTML(Math.abs(whole), Math.abs(numerator), Math.abs(denominator))})`;
+                }
+                return `<span class="mixed-fraction"><span class="whole">${whole}</span>${createFractionHTML(numerator, denominator)}</span>`;
+            }
+            
+            // 格式化分数HTML
+            function formatFractionHTML(numerator, denominator) {
+                if (denominator === 1) {
+                    return formatNumber(numerator);
+                } else if (Math.abs(numerator) > Math.abs(denominator)) {
+                    const whole = Math.floor(numerator / denominator);
+                    const remainder = numerator % denominator;
+                    return remainder === 0 ? formatNumber(whole) : createMixedFractionHTML(whole, remainder, denominator);
+                } else {
+                    return createFractionHTML(numerator, denominator);
+                }
+            }
+            
+            // 将带分数转换为假分数
+            function convertMixedToFraction(mixed) {
+                const sign = mixed.whole < 0 ? -1 : 1;
+                const absWhole = Math.abs(mixed.whole);
+                return {
+                    numerator: sign * (absWhole * mixed.denominator + Math.abs(mixed.numerator)),
+                    denominator: mixed.denominator
+                };
+            }
+            
+            // 计算两个整数的结果
+            function calculate(a, b, operation) {
+                switch(operation) {
+                    case '+': return a + b;
+                    case '-': return a - b;
+                    case '×': return a * b;
+                    case '÷': return a / b;
+                    default: return 0;
+                }
+            }
+            
+            // 计算两个分数的结果
+            function calculateFraction(n1, d1, n2, d2, operation) {
+                let numerator, denominator;
+                
+                switch(operation) {
+                    case '+':
+                        numerator = n1 * d2 + n2 * d1;
+                        denominator = d1 * d2;
+                        break;
+                    case '-':
+                        numerator = n1 * d2 - n2 * d1;
+                        denominator = d1 * d2;
+                        break;
+                    case '×':
+                        numerator = n1 * n2;
+                        denominator = d1 * d2;
+                        break;
+                    case '÷':
+                        numerator = n1 * d2;
+                        denominator = d1 * n2;
+                        break;
+                    default:
+                        numerator = 0;
+                        denominator = 1;
+                }
+                
+                // 约分
+                const gcdValue = gcd(numerator, denominator);
+                return {
+                    numerator: numerator / gcdValue,
+                    denominator: denominator / gcdValue
+                };
+            }
+            
+            // 计算整数和分数的结果
+            function calculateMixed(intValue, numerator, denominator, operation) {
+                switch(operation) {
+                    case '+':
+                        return calculateFraction(intValue * denominator, denominator, numerator, denominator, '+');
+                    case '-':
+                        return calculateFraction(intValue * denominator, denominator, numerator, denominator, '-');
+                    case '×':
+                        return calculateFraction(intValue, 1, numerator, denominator, '×');
+                    case '÷':
+                        return calculateFraction(intValue, 1, numerator, denominator, '÷');
+                    default:
+                        return { numerator: 0, denominator: 1 };
+                }
+            }
+            
+            // 计算最大公约数
+            function gcd(a, b) {
+                a = Math.abs(a);
+                b = Math.abs(b);
+                
+                if (b === 0) return a;
+                return gcd(b, a % b);
+            }
+        });
+    </script>
+</body>
+</html>
